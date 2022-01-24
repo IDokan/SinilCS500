@@ -28,9 +28,10 @@ std::mt19937_64 RNGen(device());
 std::uniform_real_distribution<> myrandom(0.0, 1.0);
 // Call myrandom(RNGen) to get a uniformly distributed random number in [0,1].
 
+#include "Intersections.h"
+
 Scene::Scene() 
 { 
-    realtime = new Realtime(); 
 }
 
 void Scene::Finit()
@@ -72,7 +73,6 @@ void Scene::Command(const std::vector<std::string>& strings,
     
     if (c == "screen") {
         // syntax: screen width height
-        realtime->setScreen(int(f[1]),int(f[2]));
         width = int(f[1]);
         height = int(f[2]); }
 
@@ -86,7 +86,11 @@ void Scene::Command(const std::vector<std::string>& strings,
         // Sets the ambient color.  Note: This parameter is temporary.
         // It will be ignored once your raytracer becomes capable of
         // accurately *calculating* the true ambient light.
-        realtime->setAmbient(vec3(f[1], f[2], f[3])); }
+        // TODO: remove this code if I am able to calculate the true ambient light accurately.
+        ambientColor.x = f.at(1);
+        ambientColor.y = f.at(2);
+        ambientColor.z = f.at(3);
+    }
 
     else if (c == "brdf")  {
         // syntax: brdf  r g b   r g b  alpha
@@ -105,17 +109,36 @@ void Scene::Command(const std::vector<std::string>& strings,
     else if (c == "sphere") {
         // syntax: sphere x y z   r
         // Creates a Shape instance for a sphere defined by a center and radius
-        realtime->sphere(vec3(f[1], f[2], f[3]), f[4], currentMat); }
+        Sphere* sphere = new Sphere(vec3(f[1], f[2], f[3]), f[4]);
+        shapes.push_back(sphere);
+        if (currentMat->isLight())
+        {
+            lights.push_back(sphere);
+        }
+    }
 
     else if (c == "box") {
         // syntax: box bx by bz   dx dy dz
         // Creates a Shape instance for a box defined by a corner point and diagonal vector
-        realtime->box(vec3(f[1], f[2], f[3]), vec3(f[4], f[5], f[6]), currentMat); }
+        Box* box = new Box(vec3(f[1], f[2], f[3]), vec3(f[4], f[5], f[6]));
+        shapes.push_back(box);
+        if (currentMat->isLight())
+        {
+            lights.push_back(box);
+        }
+    }
 
     else if (c == "cylinder") {
         // syntax: cylinder bx by bz   ax ay az  r
         // Creates a Shape instance for a cylinder defined by a base point, axis vector, and radius
-        realtime->cylinder(vec3(f[1], f[2], f[3]), vec3(f[4], f[5], f[6]), f[7], currentMat); }
+        //realtime->cylinder(vec3(f[1], f[2], f[3]), vec3(f[4], f[5], f[6]), f[7], currentMat); 
+        Cylinder* cylinder = new Cylinder(vec3(f[1], f[2], f[3]), vec3(f[4], f[5], f[6]), f[7]);
+        shapes.push_back(cylinder);
+        if (currentMat->isLight())
+        {
+            lights.push_back(cylinder);
+        }
+    }
 
 
     else if (c == "mesh") {
@@ -139,8 +162,6 @@ void Scene::Command(const std::vector<std::string>& strings,
 
 void Scene::TraceImage(Color* image, const int pass)
 {
-    realtime->run();                          // Remove this (realtime stuff)
-
 #pragma omp parallel for schedule(dynamic, 1) // Magic: Multi-thread y loop
     for (int y=0;  y<height;  y++) {
 

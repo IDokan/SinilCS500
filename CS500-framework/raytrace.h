@@ -73,9 +73,20 @@ class Realtime;
 
 class Scene {
 public:
+    // Screen info
     int width, height;
+    // Camera properties
+    // list of all the shapes
+    // 
+    // make shared pointer if possible.
+    //std::vector<std::shared_ptr<Shape>> shapes;
+    //std::vector<std::shared_ptr<Shape>> lights;
+    std::vector<Shape*> shapes;
+    std::vector<Shape*> lights;
     Realtime* realtime;         // Remove this (realtime stuff)
     Material* currentMat;
+
+    vec3 ambientColor;
 
     Scene();
     void Finit();

@@ -12,6 +12,7 @@ struct Ray;
 class Shape;
 struct Intersection;
 class Interval;
+class Material;
 
 bool FloatEqual(float val, float target);
 
@@ -35,6 +36,8 @@ public:
 class Sphere : public Shape
 {
 public:
+	Sphere(vec3 position, float radius);
+
 	virtual bool Intersect(Ray r, Intersection& i);
 
 	vec3 BoundingBoxMax();
@@ -45,9 +48,11 @@ private:
 	float radius;
 };
 
-class Box : Shape
+class Box : public Shape
 {
 public:
+	Box(vec3 position, vec3 diagonal);
+
 	virtual bool Intersect(Ray r, Intersection& i);
 
 	vec3 BoundingBoxMax();
@@ -58,9 +63,11 @@ private:
 	vec3 diagonalVector;
 };
 
-class Cylinder : Shape
+class Cylinder : public Shape
 {
 public:
+	Cylinder(vec3 position, vec3 axis, float radius);
+
 	virtual bool Intersect(Ray r, Intersection& i);
 
 
@@ -73,7 +80,7 @@ private:
 	float radius;
 };
 
-class Triangle : Shape
+class Triangle : public Shape
 {
 public:
 	virtual bool Intersect(Ray r, Intersection& i);

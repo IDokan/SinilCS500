@@ -1,5 +1,7 @@
 #include "Intersections.h"
 
+#include "raytrace.h"
+
 bool FloatEqual(float val, float target)
 {
 	const float e = glm::epsilon<float>();
@@ -55,6 +57,12 @@ bool Shape::Intersect(Ray r, Intersection& i)
 {
 	// returns true (and fills Intersection structure) if ray intersects shape
 	return false;
+}
+
+Sphere::Sphere(vec3 position, float radius)
+	: center(position), radius(radius)
+{
+
 }
 
 bool Sphere::Intersect(Ray r, Intersection& i)
@@ -118,6 +126,11 @@ vec3 Sphere::BoundingBoxMax()
 vec3 Sphere::BoundingBoxMin()
 {
 	return center - vec3(radius);
+}
+
+Box::Box(vec3 position, vec3 diagonal)
+	:corner(position), diagonalVector(diagonal)
+{
 }
 
 bool Box::Intersect(Ray r, Intersection& i)
@@ -300,6 +313,11 @@ vec3 Triangle::BoundingBoxMin()
 		std::min(std::min(v0.y, v1.y), v2.y),
 		std::min(std::min(v0.z, v1.z), v2.z)
 	);
+}
+
+Cylinder::Cylinder(vec3 position, vec3 axis, float radius)
+	: base(position), axis(axis), radius(radius)
+{
 }
 
 bool Cylinder::Intersect(Ray r, Intersection& i)
